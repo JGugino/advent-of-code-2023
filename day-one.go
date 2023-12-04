@@ -28,6 +28,8 @@ func main() {
 		calibrationValues = append(calibrationValues, findCalibrationValueFromString(v))
 	}
 
+	fmt.Println(calibrationValues)
+
 	sum := 0
 
 	for _, i := range calibrationValues {
@@ -52,17 +54,24 @@ func findCalibrationValueFromString(line string) int {
 
 	//find first number
 	for one := 0; one <= len(line); one++ {
+		digit, isDigit := isValidDigit(splitString, one, "fwd")
+
 		if isNum(splitString[one]) {
 			numOne = splitString[one]
 			break
+		} else if isDigit {
+			numOne = string(rune(digit))
 		}
 	}
 
 	//find last number
 	for two := len(line) - 1; two >= 0; two-- {
+		digit, isDigit := isValidDigit(splitString, two, "bck")
 		if isNum(splitString[two]) {
 			numTwo = splitString[two]
 			break
+		} else if isDigit {
+			numOne = string(rune(digit))
 		}
 	}
 
@@ -103,4 +112,58 @@ func isNum(input string) bool {
 	_, err := strconv.Atoi(input)
 
 	return err == nil
+}
+
+func isValidDigit(input []string, startIndex int, dir string) (int, bool) {
+	threeCharDigits := []string{"one", "two", "six"}
+	// fourCharDigits := []string{"four", "five", "nine"}
+	// fiveCharDigits := []string{"three", "seven", "eight"}
+
+	//Three Character Digits
+	for _, t := range threeCharDigits {
+		var checkingValue string
+
+		//Makes sure we don't go outside of the slice
+		if (startIndex+2 >= len(input)) || (startIndex-2 <= 0) {
+			return 0, false
+		}
+
+		//gets the value to check
+		if dir == "fwd" {
+			checkingValue = input[startIndex] + input[startIndex+1] + input[startIndex+2]
+		} else if dir == "bck" {
+			checkingValue = input[startIndex-2] + input[startIndex-1] + input[startIndex]
+		}
+
+		if checkingValue == t {
+			return returnNumFromString(t), true
+		}
+	}
+
+	return 0, false
+}
+
+func returnNumFromString(number string) int {
+	switch number {
+	case "one":
+		return 1
+	case "two":
+		return 2
+	case "three":
+		return 3
+	case "four":
+		return 4
+	case "five":
+		return 5
+	case "six":
+		return 6
+	case "seven":
+		return 7
+	case "eight":
+		return 8
+	case "nine":
+		return 9
+	default:
+		return -1
+	}
 }
