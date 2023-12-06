@@ -53,25 +53,29 @@ func findCalibrationValueFromString(line string) int {
 	numTwo := ""
 
 	//find first number
-	for one := 0; one <= len(line); one++ {
-		digit, isDigit := isValidDigit(splitString, one, "fwd")
+	for one := 0; one <= len(line)-1; one++ {
+		fmt.Println("First number")
+		digit, isDigit := isValidDigit(splitString, one)
 
-		if isNum(splitString[one]) {
+		if !isDigit && isNum(splitString[one]) {
 			numOne = splitString[one]
 			break
 		} else if isDigit {
 			numOne = string(rune(digit))
+			break
 		}
 	}
 
 	//find last number
 	for two := len(line) - 1; two >= 0; two-- {
-		digit, isDigit := isValidDigit(splitString, two, "bck")
+		fmt.Println("Second number")
+		digit, isDigit := isValidDigit(splitString, two)
 		if isNum(splitString[two]) {
 			numTwo = splitString[two]
 			break
 		} else if isDigit {
-			numOne = string(rune(digit))
+			numTwo = string(rune(digit))
+			break
 		}
 	}
 
@@ -114,31 +118,49 @@ func isNum(input string) bool {
 	return err == nil
 }
 
-func isValidDigit(input []string, startIndex int, dir string) (int, bool) {
-	threeCharDigits := []string{"one", "two", "six"}
-	// fourCharDigits := []string{"four", "five", "nine"}
-	// fiveCharDigits := []string{"three", "seven", "eight"}
+func isValidDigit(input []string, startIndex int) (int, bool) {
+	possibleDigits := []string{"one", "two", "three", "four", "five", "six", "seven", "eight", "nine"}
 
-	//Three Character Digits
-	for _, t := range threeCharDigits {
-		var checkingValue string
+	for _, d := range possibleDigits {
+		digitsLen := len(d)
+		var checkingString string
 
-		//Makes sure we don't go outside of the slice
-		if (startIndex+2 >= len(input)) || (startIndex-2 <= 0) {
+		distToEnd := len(input) - startIndex
+
+		if isNum(input[startIndex]) {
 			return 0, false
 		}
 
-		//gets the value to check
-		if dir == "fwd" {
-			checkingValue = input[startIndex] + input[startIndex+1] + input[startIndex+2]
-		} else if dir == "bck" {
-			checkingValue = input[startIndex-2] + input[startIndex-1] + input[startIndex]
-		}
+		fmt.Printf("Starting Index: %d \n", startIndex)
+		//fmt.Printf("Digit Len: %d, Digit: %s \n", digitsLen, d)
 
-		if checkingValue == t {
-			return returnNumFromString(t), true
+		if (startIndex == 0) || (startIndex-digitsLen) < 0 {
+			checkingString = strings.Join(input[startIndex:(startIndex+digitsLen)-1], "")
+			fmt.Printf("Checking-String: %s \n", checkingString)
+
+			if checkingString == d {
+				return returnNumFromString(d), true
+			}
+		} else if (startIndex+digitsLen > len(input)-1) || distToEnd < digitsLen {
+			checkingString = strings.Join(input[(startIndex-digitsLen)+1:startIndex], "")
+
+			fmt.Printf("Checking String: %s \n", checkingString)
+
+			if checkingString == d {
+				return returnNumFromString(d), true
+			}
+		} else {
+			if strings.Join(input[startIndex:(startIndex+digitsLen)-1], "") == d {
+				return returnNumFromString(d), true
+			} else if strings.Join(input[(startIndex-digitsLen)+1:startIndex], "") == d {
+				return returnNumFromString(d), true
+			}
 		}
 	}
+	// 	if checkingValue == t {
+	// 		return returnNumFromString(t), true
+	// 	}
+	// }
 
 	return 0, false
 }
