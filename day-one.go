@@ -25,10 +25,12 @@ func main() {
 	calibrationValues := make([]int, 0)
 
 	for _, v := range fileLines {
-		calibrationValues = append(calibrationValues, findCalibrationValueFromString(v))
+		if len(os.Args) >= 3 && os.Args[2] == "-a" {
+			calibrationValues = append(calibrationValues, findAbstractCalibrationValueFromString(v))
+		} else {
+			calibrationValues = append(calibrationValues, findCalibrationValueFromString(v))
+		}
 	}
-
-	fmt.Println(calibrationValues)
 
 	sum := 0
 
@@ -46,7 +48,7 @@ func main() {
 
 }
 
-func findCalibrationValueFromString(line string) int {
+func findAbstractCalibrationValueFromString(line string) int {
 	splitString := strings.Split(line, "")
 
 	numOne := ""
@@ -75,6 +77,36 @@ func findCalibrationValueFromString(line string) int {
 			break
 		} else if isDigit {
 			numTwo = string(rune(digit))
+			break
+		}
+	}
+
+	//Combine and convert numbers
+	finalNumber := numOne + numTwo
+	converted, _ := strconv.Atoi(finalNumber)
+
+	//return number
+	return converted
+}
+
+func findCalibrationValueFromString(line string) int {
+	splitString := strings.Split(line, "")
+
+	numOne := ""
+	numTwo := ""
+
+	//find first number
+	for one := 0; one <= len(line)-1; one++ {
+		if isNum(splitString[one]) {
+			numOne = splitString[one]
+			break
+		}
+	}
+
+	//find last number
+	for two := len(line) - 1; two >= 0; two-- {
+		if isNum(splitString[two]) {
+			numTwo = splitString[two]
 			break
 		}
 	}
